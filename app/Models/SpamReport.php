@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class SpamReport extends Model
 {
@@ -17,17 +18,24 @@ class SpamReport extends Model
     protected $fillable = [
         'phone_number_id',
         'user_id',
+        'reporter_user_id',
+        'moderator_id',
         'report_type',
         'description',
+        'evidence_type',
         'upvotes',
         'downvotes',
         'status',
+        'moderated_at',
+        'rejection_reason',
+        'moderator_notes',
     ];
 
     // Konversi tipe data kolom secara otomatis
     protected $casts = [
-        'upvotes'   => 'integer',
-        'downvotes' => 'integer',
+        'upvotes'      => 'integer',
+        'downvotes'    => 'integer',
+        'moderated_at' => 'datetime',
     ];
 
     // Semua kategori laporan yang valid
@@ -60,6 +68,24 @@ class SpamReport extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    // User yang secara eksplisit melaporkan (dari Form Request)
+    public function reporter(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'reporter_user_id');
+    }
+
+    // Admin yang memoderasi laporan ini
+    public function moderator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'moderator_id');
+    }
+
+    // Semua vote (upvote/downvote) untuk laporan ini
+    public function votes(): HasMany
+    {
+        return $this->hasMany(SpamReportVote::class);
     }
 
     // ──────────────────────────────────────────────
