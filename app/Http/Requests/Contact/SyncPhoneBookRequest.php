@@ -108,7 +108,7 @@ class SyncPhoneBookRequest extends FormRequest
             // ─── Deduplicate: hapus dari input ──────────────────────────
             if (!empty($duplicates)) {
                 // Sort descending agar index valid saat delete
-                rsort($duplicates, sort_flags: SORT_NUMERIC);
+                rsort($duplicates, flags: SORT_NUMERIC);
 
                 $contacts = $this->input('contacts', []);
                 foreach ($duplicates as $index) {

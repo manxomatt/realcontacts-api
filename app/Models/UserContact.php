@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Attributes\Cast;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -34,16 +33,22 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
     'contact_source',
     'last_interacted_at',
 ])]
-#[Cast([
-    'is_favorite'        => 'boolean',
-    'last_interacted_at' => 'datetime',
-    'contact_source'     => 'string',
-    'created_at'         => 'datetime',
-    'updated_at'         => 'datetime',
-])]
 class UserContact extends Model
 {
     use HasFactory;
+
+    /**
+     * Tipe data cast untuk kolom model.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'is_favorite'        => 'boolean',
+        'last_interacted_at' => 'datetime',
+        'contact_source'     => 'string',
+        'created_at'         => 'datetime',
+        'updated_at'         => 'datetime',
+    ];
 
     // ─── Relationships ─────────────────────────────────────────────────────
 

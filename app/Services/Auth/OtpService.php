@@ -6,8 +6,8 @@ namespace App\Services\Auth;
 
 use App\Contracts\SmsProviderInterface;
 use App\Services\Phone\PhoneNormalizerService;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Redis;
 
 /**
  * OtpService
@@ -16,7 +16,12 @@ use Illuminate\Support\Facades\Redis;
  * generate → send → verify, dengan proteksi brute-force
  * berupa pembatasan attempt dan blacklist sementara.
  *
- * Redis key pattern yang digunakan:
+ * Storage Backend:
+ *   - Menggunakan Laravel Cache facade (tidak tergantung Redis)
+ *   - Otomatis menggunakan cache driver dari config (database, redis, file, dll)
+ *   - TTL (Time To Live) otomatis handled oleh cache driver
+ *
+ * Cache key pattern yang digunakan:
  *   otp:{normalized}          → kode OTP, TTL 5 menit
  *   otp_attempts:{normalized} → counter percobaan, TTL 15 menit
  *   otp_blacklist:{normalized} → flag blacklist, TTL 15 menit
@@ -28,7 +33,7 @@ final class OtpService
     /** Panjang kode OTP (digit) */
     private const OTP_LENGTH = 6;
 
-    /** TTL OTP di Redis (detik) */
+    /** TTL OTP di Cache (detik) */
     private const TTL_OTP = 300;           // 5 menit
 
     /** TTL attempt counter dan blacklist (detik) */
@@ -47,12 +52,12 @@ final class OtpService
     // ─── Public Methods ────────────────────────────────────────────────────────
 
     /**
-     * Generate OTP 6 digit dan simpan ke Redis.
+     * Generate OTP 6 digit dan simpan ke Cache.
      *
      * Alur:
      *   1. Normalisasi nomor via PhoneNormalizerService (pipe |>)
      *   2. Generate kode acak 6 digit (cryptographically safe)
-     *   3. Simpan ke Redis dengan TTL 5 menit
+     *   3. Simpan ke Cache dengan TTL 5 menit
      *   4. Reset attempt counter (TTL 15 menit)
      *
      * @return string Kode OTP 6 digit
@@ -71,18 +76,18 @@ final class OtpService
             pad_type: STR_PAD_LEFT
         );
 
-        // Simpan OTP ke Redis dengan TTL 5 menit
-        Redis::setex(
+        // Simpan OTP ke Cache dengan TTL 5 menit
+        Cache::put(
             $this->keyOtp($normalized),
-            self::TTL_OTP,
-            $otpCode
+            $otpCode,
+            now()->addSeconds(self::TTL_OTP)
         );
 
         // Inisialisasi / reset attempt counter dengan TTL 15 menit
-        Redis::setex(
+        Cache::put(
             $this->keyAttempts($normalized),
-            self::TTL_ATTEMPTS,
-            '0'
+            '0',
+            now()->addSeconds(self::TTL_ATTEMPTS)
         );
 
         return $otpCode;
@@ -125,7 +130,7 @@ final class OtpService
      *   - hash_equals() mencegah timing attack (constant-time comparison)
      *   - Setiap gagal → increment attempt counter
      *   - Attempt >= MAX_ATTEMPTS → blacklist 15 menit
-     *   - OTP valid → langsung hapus dari Redis (one-time use)
+     *   - OTP valid → langsung hapus dari Cache (one-time use)
      *
      * @param  string $phoneNumber Nomor yang melakukan verifikasi
      * @param  string $otpCode     Kode yang diinput user
@@ -136,11 +141,11 @@ final class OtpService
         $normalized = $phoneNumber
             |> (fn(string $n): string => $this->normalizer->normalize($n));
 
-        // Ambil OTP dari Redis
-        $stored = Redis::get($this->keyOtp($normalized));
+        // Ambil OTP dari Cache
+        $stored = Cache::get($this->keyOtp($normalized));
 
         // OTP tidak ada atau sudah expired
-        if ($stored === null || $stored === false) {
+        if ($stored === null) {
             return false;
         }
 
@@ -149,8 +154,8 @@ final class OtpService
 
         if ($isValid) {
             // OTP valid — hapus langsung agar tidak bisa dipakai ulang
-            Redis::del($this->keyOtp($normalized));
-            Redis::del($this->keyAttempts($normalized));
+            Cache::forget($this->keyOtp($normalized));
+            Cache::forget($this->keyAttempts($normalized));
 
             return true;
         }
@@ -164,7 +169,7 @@ final class OtpService
     /**
      * Cek apakah nomor sedang dalam masa blacklist.
      *
-     * Blacklist aktif jika key "otp_blacklist:{normalized}" ada di Redis.
+     * Blacklist aktif jika key "otp_blacklist:{normalized}" ada di Cache.
      * Key tersebut di-set oleh recordFailedAttempt() setelah attempt >= MAX.
      */
     public function isBlacklisted(string $phoneNumber): bool
@@ -172,15 +177,13 @@ final class OtpService
         $normalized = $phoneNumber
             |> (fn(string $n): string => $this->normalizer->normalize($n));
 
-        $value = Redis::get($this->keyBlacklist($normalized));
-
-        return $value !== null && $value !== false;
+        return Cache::has($this->keyBlacklist($normalized));
     }
 
     /**
      * Sisa percobaan verify yang dimiliki user.
      *
-     * Jika counter tidak ada di Redis (belum pernah salah), return MAX_ATTEMPTS.
+     * Jika counter tidak ada di Cache (belum pernah salah), return MAX_ATTEMPTS.
      * Sisa = MAX_ATTEMPTS - jumlah_gagal, minimum 0.
      *
      * @return int 0–3
@@ -190,7 +193,7 @@ final class OtpService
         $normalized = $phoneNumber
             |> (fn(string $n): string => $this->normalizer->normalize($n));
 
-        $attempts = (int) (Redis::get($this->keyAttempts($normalized)) ?? 0);
+        $attempts = (int) (Cache::get($this->keyAttempts($normalized)) ?? 0);
 
         return max(0, self::MAX_ATTEMPTS - $attempts);
     }
@@ -201,31 +204,33 @@ final class OtpService
      * Catat satu percobaan verify yang gagal.
      *
      * Jika total kegagalan mencapai MAX_ATTEMPTS, set key blacklist
-     * dengan TTL 15 menit dan hapus OTP dari Redis.
+     * dengan TTL 15 menit dan hapus OTP dari Cache.
      */
     private function recordFailedAttempt(string $normalizedPhone): void
     {
         $attemptsKey = $this->keyAttempts($normalizedPhone);
 
-        // Increment — jika key belum ada, Redis akan buat dengan nilai 1
-        $attempts = (int) Redis::incr($attemptsKey);
+        // Ambil counter saat ini dan increment
+        $attempts = (int) (Cache::get($attemptsKey) ?? 0);
+        $attempts++;
 
-        // Pastikan TTL counter masih aktif (INCR tidak mengubah TTL yang ada)
-        // Hanya set TTL jika key baru (TTL = -1 berarti tidak ada expire)
-        if (Redis::ttl($attemptsKey) === -1) {
-            Redis::expire($attemptsKey, self::TTL_ATTEMPTS);
-        }
+        // Simpan counter yang sudah di-increment
+        Cache::put(
+            $attemptsKey,
+            (string) $attempts,
+            now()->addSeconds(self::TTL_ATTEMPTS)
+        );
 
         // Blacklist jika sudah mencapai batas maksimum
         if ($attempts >= self::MAX_ATTEMPTS) {
-            Redis::setex(
+            Cache::put(
                 $this->keyBlacklist($normalizedPhone),
-                self::TTL_ATTEMPTS,
-                '1'
+                '1',
+                now()->addSeconds(self::TTL_ATTEMPTS)
             );
 
             // Hapus OTP — tidak perlu disimpan lagi
-            Redis::del($this->keyOtp($normalizedPhone));
+            Cache::forget($this->keyOtp($normalizedPhone));
 
             Log::warning('Nomor di-blacklist karena terlalu banyak percobaan OTP', [
                 'phone'    => $this->normalizer->maskNumber($normalizedPhone),
@@ -236,19 +241,19 @@ final class OtpService
 
     // ─── Key Builders ─────────────────────────────────────────────────────────
 
-    /** Key Redis untuk kode OTP */
+    /** Key Cache untuk kode OTP */
     private function keyOtp(string $normalized): string
     {
         return "otp:{$normalized}";
     }
 
-    /** Key Redis untuk counter percobaan */
+    /** Key Cache untuk counter percobaan */
     private function keyAttempts(string $normalized): string
     {
         return "otp_attempts:{$normalized}";
     }
 
-    /** Key Redis untuk blacklist */
+    /** Key Cache untuk blacklist */
     private function keyBlacklist(string $normalized): string
     {
         return "otp_blacklist:{$normalized}";

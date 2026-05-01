@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Attributes\Cast;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -34,15 +33,21 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
     'is_system',
     'usage_count',
 ])]
-#[Cast([
-    'is_system'   => 'boolean',
-    'usage_count' => 'integer',
-    'created_at'  => 'datetime',
-    'updated_at'  => 'datetime',
-])]
 class ContactTag extends Model
 {
     use HasFactory;
+
+    /**
+     * Tipe data cast untuk kolom model.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'is_system'   => 'boolean',
+        'usage_count' => 'integer',
+        'created_at'  => 'datetime',
+        'updated_at'  => 'datetime',
+    ];
 
     // ─── Relationships ─────────────────────────────────────────────────────
 
