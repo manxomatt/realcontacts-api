@@ -37,7 +37,9 @@ class SpamReport extends Model
         'robo_call',
         'harassment',
         'fraud_bank',
+        'fraud_prize',
         'debt_collector',
+        'survey',
         'unknown_spam',
     ];
 

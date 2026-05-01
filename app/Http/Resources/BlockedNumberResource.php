@@ -47,7 +47,7 @@ class BlockedNumberResource extends JsonResource
 
                 return [
                     'owner_name'  => $phone->owner_name ?? 'Unknown',
-                    'spam_level'  => $phone->spam_level->value, // Accessor: 'safe'|'warning'|'danger'
+                    'spam_level'  => $phone->spam_level, // Accessor string: 'safe'|'warning'|'danger'
                     'operator'    => $phone->operator_name,
                     'is_verified' => $phone->is_verified,
                 ];

@@ -15,7 +15,7 @@ use Illuminate\Notifications\Notifiable;
 
 // Field sensitif tersembunyi di seluruh response — id tidak di-hidden di sini
 // karena dibutuhkan untuk relasi, tetapi TIDAK boleh di-expose di UserResource
-#[Fillable(['name', 'email', 'phone_number', 'password', 'badge_level', 'contribution_points', 'is_premium', 'premium_expires_at'])]
+#[Fillable(['name', 'email', 'phone_number', 'password', 'badge_level', 'contribution_points', 'is_premium', 'is_admin', 'premium_expires_at', 'notification_preferences'])]
 #[Hidden(['password', 'remember_token', 'email'])]
 class User extends Authenticatable
 {
@@ -29,8 +29,10 @@ class User extends Authenticatable
             'email_verified_at'   => 'datetime',
             'premium_expires_at'  => 'datetime',
             'password'            => 'hashed',
-            'is_premium'          => 'boolean',
-            'contribution_points' => 'integer',
+            'is_premium'               => 'boolean',
+            'is_admin'                 => 'boolean',
+            'contribution_points'      => 'integer',
+            'notification_preferences' => 'array',
         ];
     }
 

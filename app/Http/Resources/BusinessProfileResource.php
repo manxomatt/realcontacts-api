@@ -88,8 +88,10 @@ class BusinessProfileResource extends JsonResource
             // ─── Relasi ────────────────────────────────────────────────────────
 
             // Hanya muncul jika ->with('phoneNumber') dipanggil di Controller
-            'phone_number'    => new PhoneNumberResource(
-                $this->whenLoaded('phoneNumber')
+            // Bungkus dalam whenLoaded closure agar MissingValue tidak masuk ke constructor
+            'phone_number'    => $this->whenLoaded(
+                'phoneNumber',
+                fn($phone) => new PhoneNumberResource($phone)
             ),
         ];
     }

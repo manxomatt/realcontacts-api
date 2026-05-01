@@ -8,11 +8,24 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['user_id', 'phone_number_id', 'reason'])]
+#[Fillable(['user_id', 'phone_number_id', 'reason', 'block_type', 'category', 'schedule'])]
 class BlockedNumber extends Model
 {
     /** @use HasFactory<BlockedNumberFactory> */
     use HasFactory;
+
+    // Kolom JSON dan tipe cast otomatis
+    protected function casts(): array
+    {
+        return [
+            'schedule' => 'array',
+        ];
+    }
+
+    // Nilai default atribut
+    protected $attributes = [
+        'block_type' => 'manual',
+    ];
 
     // ─────────────────────────────────────────────
     // Relasi

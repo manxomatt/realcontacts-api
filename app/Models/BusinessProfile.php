@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class BusinessProfile extends Model
 {
@@ -31,6 +32,7 @@ class BusinessProfile extends Model
         'rating',
         'maps_url',
         'is_claimed',
+        'claimed_by_user_id',
     ];
 
     // Konversi tipe data kolom secara otomatis
@@ -50,6 +52,12 @@ class BusinessProfile extends Model
     public function phoneNumber(): BelongsTo
     {
         return $this->belongsTo(PhoneNumber::class);
+    }
+
+    // User yang mengklaim profil bisnis ini
+    public function claimedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'claimed_by_user_id');
     }
 
     // ──────────────────────────────────────────────

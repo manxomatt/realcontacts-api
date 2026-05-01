@@ -58,13 +58,17 @@ class PhoneNumberResource extends JsonResource
             // ─── Relasi (hanya muncul jika di-eager load) ─────────
 
             // Hindari N+1: hanya sertakan jika withLoad('spamReports') dipanggil
-            'spam_reports'   => SpamReportResource::collection(
-                $this->whenLoaded('spamReports')
+            // Bungkus dalam whenLoaded closure agar MissingValue tidak dikirim ke ::collection()
+            'spam_reports'   => $this->whenLoaded(
+                'spamReports',
+                fn($reports) => SpamReportResource::collection($reports)
             ),
 
             // Hanya sertakan jika withLoad('businessProfile') dipanggil
-            'business_profile' => new BusinessProfileResource(
-                $this->whenLoaded('businessProfile')
+            // Bungkus dalam whenLoaded closure agar MissingValue tidak masuk ke constructor
+            'business_profile' => $this->whenLoaded(
+                'businessProfile',
+                fn($profile) => new BusinessProfileResource($profile)
             ),
         ];
     }

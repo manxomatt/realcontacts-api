@@ -1,49 +1,38 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Requests\Phone\BatchPhoneLookupRequest;
+use App\Http\Requests\Phone\PhoneLookupRequest;
+use App\Http\Responses\ApiResponse;
+use Illuminate\Http\JsonResponse;
 
 class PhoneLookupController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Lookup satu nomor telepon.
      */
-    public function index()
+    public function show(PhoneLookupRequest $request, string $number): JsonResponse
     {
-        //
+        // TODO: implementasi PhoneLookupService
+        return ApiResponse::success(
+            ['normalized' => $request->normalizedNumber()],
+            'Lookup berhasil — implementasi Service pending'
+        );
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Lookup banyak nomor sekaligus (premium only).
      */
-    public function store(Request $request)
+    public function batch(BatchPhoneLookupRequest $request): JsonResponse
     {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        // TODO: implementasi PhoneLookupService
+        return ApiResponse::success(
+            ['numbers' => $request->normalizedNumbers()],
+            'Batch lookup berhasil — implementasi Service pending'
+        );
     }
 }
