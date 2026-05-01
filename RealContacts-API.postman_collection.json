@@ -722,6 +722,363 @@
       ]
     },
     {
+      "name": "Contact Management",
+      "item": [
+        {
+          "name": "List Contacts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/contacts?tag_id=1&search=John&is_favorite=1&source=phone_book&sort=name&per_page=20",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "contacts"
+              ],
+              "query": [
+                {
+                  "key": "tag_id",
+                  "value": "1"
+                },
+                {
+                  "key": "search",
+                  "value": "John"
+                },
+                {
+                  "key": "is_favorite",
+                  "value": "1"
+                },
+                {
+                  "key": "source",
+                  "value": "phone_book"
+                },
+                {
+                  "key": "sort",
+                  "value": "name"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Contact",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\": \"John Doe\", \"phone_number\": \"+6281234567890\", \"email\": \"john@example.com\", \"notes\": \"Customer\", \"source\": \"manual\", \"tags\": [1, 2]}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/contacts",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "contacts"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Contact Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/contacts/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "contacts",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Contact",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\": \"John Updated\", \"email\": \"john.updated@example.com\", \"notes\": \"VIP Customer\"}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/contacts/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "contacts",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Contact",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/contacts/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "contacts",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Toggle Favorite Contact",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/contacts/1/toggle-favorite",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "contacts",
+                "1",
+                "toggle-favorite"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Sync Phone Book",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"contacts\": [{\"phone_number\": \"+6281234567890\", \"name\": \"John Doe\", \"last_interacted_at\": \"2025-05-01T10:00:00Z\"}, {\"phone_number\": \"+6281234567891\", \"name\": \"Jane Smith\"}]}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/contacts/sync-phone-book",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "contacts",
+                "sync-phone-book"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Enrich Contacts",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/contacts/enrich",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "contacts",
+                "enrich"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Contact Tags",
+      "item": [
+        {
+          "name": "List Tags",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/contacts/tags",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "contacts",
+                "tags"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Tag",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\": \"VIP Customers\", \"color\": \"#FF5722\", \"icon\": \"star\"}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/contacts/tags",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "contacts",
+                "tags"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Tag",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\": \"VIP Customers Updated\", \"color\": \"#FF6F00\", \"icon\": \"favorite\"}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/contacts/tags/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "contacts",
+                "tags",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Tag",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/contacts/tags/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "contacts",
+                "tags",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Tag's Contacts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/contacts/tags/1/contacts?per_page=20&sort=name",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "contacts",
+                "tags",
+                "1",
+                "contacts"
+              ],
+              "query": [
+                {
+                  "key": "per_page",
+                  "value": "20"
+                },
+                {
+                  "key": "sort",
+                  "value": "name"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Merge Tags",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"target_tag_id\": 2}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/contacts/tags/1/merge",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "contacts",
+                "tags",
+                "1",
+                "merge"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
       "name": "Admin - Spam Moderation",
       "item": [
         {

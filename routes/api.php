@@ -5,6 +5,8 @@ use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\Auth\OtpController;
 use App\Http\Controllers\Api\Block\CallBlockerController;
 use App\Http\Controllers\Api\Business\BusinessProfileController;
+use App\Http\Controllers\Api\Contact\ContactController;
+use App\Http\Controllers\Api\Contact\ContactTagController;
 use App\Http\Controllers\Api\Phone\BatchLookupController;
 use App\Http\Controllers\Api\Phone\PhoneLookupController;
 use App\Http\Controllers\Api\Spam\SpamModerationController;
@@ -46,7 +48,7 @@ Route::middleware('auth:sanctum')->group(function (): void {
         // Logout: POST /api/auth/logout
         Route::post('logout', [AuthController::class, 'logout'])
             ->name('logout');
-        
+
         // Get profile: GET /api/auth/me
         Route::get('me', [AuthController::class, 'me'])
             ->name('me');
@@ -157,10 +159,72 @@ Route::middleware('auth:sanctum')->group(function (): void {
         Route::post('{number}/rate', [BusinessProfileController::class, 'rate'])
             ->name('rate');
     });
+
+    // ─── Contact Management ───────────────────────────────────────────────
+    Route::prefix('contacts')->name('contacts.')->group(function (): void {
+        // List contacts: GET /api/contacts
+        Route::get('/', [ContactController::class, 'index'])
+            ->name('index');
+
+        // Create contact: POST /api/contacts
+        Route::post('/', [ContactController::class, 'store'])
+            ->name('store');
+
+        // Sync phone book: POST /api/contacts/sync-phone-book
+        Route::post('sync-phone-book', [ContactController::class, 'syncPhoneBook'])
+            ->name('sync-phone-book');
+
+        // Enrich contacts: POST /api/contacts/enrich
+        Route::post('enrich', [ContactController::class, 'enrich'])
+            ->name('enrich');
+
+        // Get contact: GET /api/contacts/{contact}
+        Route::get('{contact}', [ContactController::class, 'show'])
+            ->name('show');
+
+        // Update contact: PUT /api/contacts/{contact}
+        Route::put('{contact}', [ContactController::class, 'update'])
+            ->name('update');
+
+        // Delete contact: DELETE /api/contacts/{contact}
+        Route::delete('{contact}', [ContactController::class, 'destroy'])
+            ->name('destroy');
+
+        // Toggle favorite: POST /api/contacts/{contact}/toggle-favorite
+        Route::post('{contact}/toggle-favorite', [ContactController::class, 'toggleFavorite'])
+            ->name('toggle-favorite');
+    });
+
+    // ─── Contact Tags ─────────────────────────────────────────────────────
+    Route::prefix('contacts/tags')->name('contacts.tags.')->group(function (): void {
+        // List tags: GET /api/contacts/tags
+        Route::get('/', [ContactTagController::class, 'index'])
+            ->name('index');
+
+        // Create tag: POST /api/contacts/tags
+        Route::post('/', [ContactTagController::class, 'store'])
+            ->name('store');
+
+        // Get tag's contacts: GET /api/contacts/tags/{tag}/contacts
+        Route::get('{tag}/contacts', [ContactTagController::class, 'contacts'])
+            ->name('contacts');
+
+        // Merge tags: POST /api/contacts/tags/{tag}/merge
+        Route::post('{tag}/merge', [ContactTagController::class, 'merge'])
+            ->name('merge');
+
+        // Update tag: PUT /api/contacts/tags/{tag}
+        Route::put('{tag}', [ContactTagController::class, 'update'])
+            ->name('update');
+
+        // Delete tag: DELETE /api/contacts/tags/{tag}
+        Route::delete('{tag}', [ContactTagController::class, 'destroy'])
+            ->name('destroy');
+    });
 });
 
 // ╔════════════════════════════════════════════════════════════════════════════╗
-// ║                    ADMIN ENDPOINTS — Admin only                             ║
+// ║                    ADMIN ENDPOINTS — Admin only                            ║
 // ╚════════════════════════════════════════════════════════════════════════════╝
 
 Route::middleware(['auth:sanctum', 'admin'])->group(function (): void {

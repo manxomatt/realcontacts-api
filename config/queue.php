@@ -93,6 +93,40 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Queue Names & Priorities
+    |--------------------------------------------------------------------------
+    |
+    | Definisikan queue yang berbeda dengan prioritas masing-masing.
+    | Priority lebih tinggi = dikerjakan duluan.
+    | Priority lebih rendah = dikerjakan belakangan.
+    |
+    | Contoh:
+    | - 'notifications': priority 50 (urgent messages)
+    | - 'contacts': priority 30 (background sync/enrichment)
+    | - 'default': priority 10 (low priority tasks)
+    |
+    */
+
+    'queues' => [
+        'notifications' => [
+            'connection' => 'redis',
+            'queue' => 'notifications',
+            'priority' => 50,  // Paling urgent
+        ],
+        'contacts' => [
+            'connection' => 'redis',
+            'queue' => 'contacts',
+            'priority' => 30,  // Medium (lebih rendah dari notifications)
+        ],
+        'default' => [
+            'connection' => 'redis',
+            'queue' => 'default',
+            'priority' => 10,  // Paling low
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Job Batching
     |--------------------------------------------------------------------------
     |

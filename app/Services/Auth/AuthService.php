@@ -9,6 +9,7 @@ use App\Exceptions\OtpExpiredException;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Services\Auth\OtpService;
+use App\Services\Contact\ContactTagService;
 use App\Services\User\UserService;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Support\Facades\DB;
@@ -36,8 +37,9 @@ final class AuthService
     // ─── Constructor ──────────────────────────────────────────────────────────
 
     public function __construct(
-        private readonly OtpService  $otpService,
-        private readonly UserService $userService,
+        private readonly OtpService         $otpService,
+        private readonly UserService       $userService,
+        private readonly ContactTagService $contactTagService,
     ) {}
 
     // ─── Public Methods ────────────────────────────────────────────────────────
@@ -65,7 +67,7 @@ final class AuthService
 
         // Buat user dalam satu transaksi
         $user = DB::transaction(function () use ($validatedData): User {
-            return $this->userService->create([
+            $user = $this->userService->create([
                 'name'         => $validatedData['name'],
                 'phone_number' => $validatedData['phone_number'],
                 'country_code' => $validatedData['country_code'] ?? '+62',
@@ -74,6 +76,11 @@ final class AuthService
                 'email'        => $validatedData['email'] ?? $this->generatePlaceholderEmail($validatedData['phone_number']),
                 'password'     => '', // Tidak dipakai — auth via OTP
             ]);
+
+            // Buat default system tags untuk user baru dalam transaksi yang sama
+            $this->contactTagService->createDefaultTagsForUser($user);
+
+            return $user;
         });
 
         // Generate dan kirim OTP
