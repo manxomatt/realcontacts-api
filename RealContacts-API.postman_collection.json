@@ -1,0 +1,940 @@
+{
+  "info": {
+    "name": "RealContacts API",
+    "description": "Complete REST API untuk RealContacts - Caller ID & Spam Protection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{auth_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  pm.environment.set('phone_number', pm.request.body.raw.phone_number);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"phone_number\": \"+6281234567890\", \"name\": \"Test User\"}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Request OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"phone_number\": \"+6281234567890\"}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/otp/request",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "otp",
+                "request"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Resend OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"phone_number\": \"+6281234567890\"}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/otp/resend",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "otp",
+                "resend"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Verify OTP & Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  var jsonData = pm.response.json();",
+                  "  pm.environment.set('auth_token', jsonData.data.token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"phone_number\": \"+6281234567890\", \"otp_code\": \"123456\"}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/verify-otp",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "verify-otp"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Profile (Me)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/auth/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "me"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/auth/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "logout"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "User Management",
+      "item": [
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/user/profile",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "user",
+                "profile"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\": \"Updated Name\", \"email\": \"user@example.com\"}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/user/profile",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "user",
+                "profile"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Number Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/user/number-health",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "user",
+                "number-health"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Contributions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/user/contributions",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "user",
+                "contributions"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Leaderboard",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/user/leaderboard?period=monthly&limit=10",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "user",
+                "leaderboard"
+              ],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "monthly"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Phone Lookup",
+      "item": [
+        {
+          "name": "Lookup Single Number",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/phone/+6281234567890",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "phone",
+                "+6281234567890"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search Numbers",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/phone/search?query=pizza&limit=10",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "phone",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "query",
+                  "value": "pizza"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Recent Lookups",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/phone/recent?limit=20",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "phone",
+                "recent"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Batch Lookup (Premium)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"phone_numbers\": [\"+6281234567890\", \"+6281234567891\", \"+6281234567892\"]}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/phone/batch",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "phone",
+                "batch"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Spam Reports",
+      "item": [
+        {
+          "name": "Get Reports for Phone",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/spam-reports/+6281234567890",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "spam-reports",
+                "+6281234567890"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Submit Spam Report",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"phone_number\": \"+6281234567890\", \"category\": \"spam\", \"description\": \"Robocall spam\"}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/spam-reports",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "spam-reports"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Vote on Report",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"type\": \"upvote\"}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/spam-reports/1/vote",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "spam-reports",
+                "1",
+                "vote"
+              ]
+            }
+          }
+        },
+        {
+          "name": "My Reports",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/spam-reports/me/reports",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "spam-reports",
+                "me",
+                "reports"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Call Blocker",
+      "item": [
+        {
+          "name": "Get Blocklist",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/blocked-numbers",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "blocked-numbers"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Add to Blocklist",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"phone_number\": \"+6281234567890\", \"reason\": \"Spam\"}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/blocked-numbers",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "blocked-numbers"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Check if Blocked",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/blocked-numbers/+6281234567890/check",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "blocked-numbers",
+                "+6281234567890",
+                "check"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Remove from Blocklist",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/blocked-numbers/+6281234567890",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "blocked-numbers",
+                "+6281234567890"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Bulk Import Blocklist",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"phone_numbers\": [\"+6281234567890\", \"+6281234567891\", \"+6281234567892\"]}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/blocked-numbers/import",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "blocked-numbers",
+                "import"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Business Profiles",
+      "item": [
+        {
+          "name": "Get Business Profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/business-profiles/+6281234567890",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "business-profiles",
+                "+6281234567890"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Claim Business Profile",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"business_name\": \"Pizza Shop\", \"website\": \"https://pizzashop.com\"}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/business-profiles/+6281234567890/claim",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "business-profiles",
+                "+6281234567890",
+                "claim"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Business Profile",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"business_name\": \"Pizza Shop Updated\", \"category\": \"Food & Beverage\"}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/business-profiles/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "business-profiles",
+                "1"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Rate Business",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"rating\": 4.5, \"review\": \"Great service!\"}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/business-profiles/+6281234567890/rate",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "business-profiles",
+                "+6281234567890",
+                "rate"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Spam Moderation",
+      "item": [
+        {
+          "name": "Get Pending Reports",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/spam/moderation/pending?priority=high&per_page=20",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "spam",
+                "moderation",
+                "pending"
+              ],
+              "query": [
+                {
+                  "key": "priority",
+                  "value": "high"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Approve Report",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/spam/moderation/1/approve",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "spam",
+                "moderation",
+                "1",
+                "approve"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Reject Report",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"rejection_reason\": \"Insufficient evidence\"}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/spam/moderation/1/reject",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "spam",
+                "moderation",
+                "1",
+                "reject"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Moderation Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/spam/moderation/stats",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "spam",
+                "moderation",
+                "stats"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Dashboard",
+      "item": [
+        {
+          "name": "Dashboard Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/admin/dashboard/stats",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "dashboard",
+                "stats"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Dashboard Activity",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/admin/dashboard/activity?minutes=30",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "dashboard",
+                "activity"
+              ],
+              "query": [
+                {
+                  "key": "minutes",
+                  "value": "30"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Top Spam Numbers",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/admin/dashboard/top-spam-numbers",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "dashboard",
+                "top-spam-numbers"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Reporter Leaderboard",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/admin/dashboard/reporter-leaderboard",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "dashboard",
+                "reporter-leaderboard"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "auth_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "phone_number",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

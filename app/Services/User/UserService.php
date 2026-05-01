@@ -49,4 +49,19 @@ final class UserService
     {
         return User::where('phone_number', $phoneNumber)->first();
     }
+
+    /**
+     * Update data user dengan data tervalidasi.
+     *
+     * @param  User                 $user
+     * @param  array<string, mixed> $data  Data tervalidasi dari Form Request
+     * @return User
+     */
+    public function update(User $user, array $data): User
+    {
+        $user->update($data);
+        $user->refresh();
+
+        return $user;
+    }
 }
